@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import HomePage from "./assets/pages/HomePage";
 import MenuPage from "./assets/pages/MenuPage";
@@ -18,7 +18,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <NavigationBar cartCount={cart.length} />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -31,7 +31,7 @@ function App() {
           element={<CartPage cart={cart} removeFromCart={removeFromCart} />}
         />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
