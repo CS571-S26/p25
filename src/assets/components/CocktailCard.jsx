@@ -1,8 +1,16 @@
-import { Card, Button, Form } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
 import { useState } from "react";
 
 function CocktailCard({ cocktail, addToCart }) {
   const [quantity, setQuantity] = useState(1);
+
+  const increment = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const decrement = () => {
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
 
   const handleAdd = () => {
     addToCart(cocktail, quantity);
@@ -23,15 +31,20 @@ function CocktailCard({ cocktail, addToCart }) {
           <strong>Ingredients:</strong> {cocktail.ingredients}
         </Card.Text>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Quantity</Form.Label>
-          <Form.Control
-            type="number"
-            min="1"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-          />
-        </Form.Group>
+        {/* Quantity selector */}
+        <div className="d-flex align-items-center justify-content-center mb-3">
+          <Button variant="secondary" onClick={decrement}>
+            -
+          </Button>
+
+          <span style={{ margin: "0 15px", fontSize: "18px" }}>
+            {quantity}
+          </span>
+
+          <Button variant="secondary" onClick={increment}>
+            +
+          </Button>
+        </div>
 
         <Button variant="dark" className="mt-auto" onClick={handleAdd}>
           Add to Cart
