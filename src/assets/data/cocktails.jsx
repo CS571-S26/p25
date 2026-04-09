@@ -1,7 +1,7 @@
-import pinaColada from "../assets/images/pinaColada.jpg";
-import martini from "../assets/images/martini.jpg";
-import whiskeySour from "../assets/images/whiskeySour.jpg";
-import aperolSpritz from "../assets/images/aperolSpritz.jpg";
+import pinaColada from "../images/pinaColada.jpg";
+import martini from "../images/martini.jpg";
+import whiskeySour from "../images/whiskeySour.jpg";
+import aperolSpritz from "../images/aperolSpritz.jpg";
 
 const cocktails = [
   {
