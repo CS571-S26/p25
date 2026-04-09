@@ -27,7 +27,7 @@ const cocktails = [
     id: 5,
     name: "Piña Colada",
     ingredients: "Rum, coconut cream, pineapple juice",
-    image: "https://images.unsplash.com/photo-1560508179-b2c9aabf8f5b?auto=format&fit=crop&w=800&q=80"
+    image:"https://images.unsplash.com/photo-lD1Yqc0b3kc?auto=format&fit=crop&w=800&q=80"
   },
   {
     id: 6,
