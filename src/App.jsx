@@ -9,12 +9,24 @@ import cocktails from "./assets/data/cocktails";
 function App() {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (cocktail) => {
-    setCart((prev) => [...prev, cocktail]);
-  };
+  const addToCart = (cocktail, quantity) => {
+  setCart((prev) => {
+    const existingItem = prev.find((item) => item.id === cocktail.id);
 
-  const removeFromCart = (indexToRemove) => {
-    setCart((prev) => prev.filter((_, index) => index !== indexToRemove));
+    if (existingItem) {
+      return prev.map((item) =>
+        item.id === cocktail.id
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+    }
+
+    return [...prev, { ...cocktail, quantity }];
+  });
+};
+
+  const removeFromCart = (idToRemove) => {
+    setCart((prev) => prev.filter((item) => item.id !== idToRemove));
   };
 
   return (

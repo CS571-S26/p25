@@ -9,11 +9,10 @@ function CartPage({ cart, removeFromCart }) {
       {cart.length === 0 ? (
         <p className="text-center">Your cart is empty.</p>
       ) : (
-        cart.map((item, index) => (
+        cart.map((item) => (
           <CartItem
-            key={`${item.id}-${index}`}
+            key={item.id}
             item={item}
-            index={index}
             removeFromCart={removeFromCart}
           />
         ))

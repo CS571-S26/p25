@@ -1,6 +1,14 @@
-import { Card, Button } from "react-bootstrap";
+import { Card, Button, Form } from "react-bootstrap";
+import { useState } from "react";
 
 function CocktailCard({ cocktail, addToCart }) {
+  const [quantity, setQuantity] = useState(1);
+
+  const handleAdd = () => {
+    addToCart(cocktail, quantity);
+    setQuantity(1);
+  };
+
   return (
     <Card className="h-100 shadow-sm">
       <Card.Img
@@ -14,11 +22,18 @@ function CocktailCard({ cocktail, addToCart }) {
         <Card.Text>
           <strong>Ingredients:</strong> {cocktail.ingredients}
         </Card.Text>
-        <Button
-          variant="dark"
-          className="mt-auto"
-          onClick={() => addToCart(cocktail)}
-        >
+
+        <Form.Group className="mb-3">
+          <Form.Label>Quantity</Form.Label>
+          <Form.Control
+            type="number"
+            min="1"
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+          />
+        </Form.Group>
+
+        <Button variant="dark" className="mt-auto" onClick={handleAdd}>
           Add to Cart
         </Button>
       </Card.Body>
