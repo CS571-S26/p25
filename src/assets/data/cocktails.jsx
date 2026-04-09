@@ -1,3 +1,8 @@
+import pinaColada from "../assets/images/martini.jpg";
+import martini from "../assets/images/martini.jpg";
+import whiskeySour from "../assets/images/whiskey-sour.jpg";
+import aperolSpritz from "../assets/images/aperol-spritz.jpg";
+
 const cocktails = [
   {
     id: 1,
@@ -27,7 +32,7 @@ const cocktails = [
     id: 5,
     name: "Piña Colada",
     ingredients: "Rum, coconut cream, pineapple juice",
-    image:"https://images.unsplash.com/photo-lD1Yqc0b3kc?auto=format&fit=crop&w=800&q=80"
+    image: pinaColada
   },
   {
     id: 6,
@@ -39,13 +44,13 @@ const cocktails = [
     id: 7,
     name: "Martini",
     ingredients: "Gin, dry vermouth, olive or lemon twist",
-    image: "https://images.unsplash.com/photo-1575650772417-e6b418b0d5a2?auto=format&fit=crop&w=800&q=80"
+    image: martini
   },
   {
     id: 8,
     name: "Whiskey Sour",
     ingredients: "Whiskey, lemon juice, sugar, egg white",
-    image: "https://images.unsplash.com/photo-1514361892635-eae31ec8e2f8?auto=format&fit=crop&w=800&q=80"
+    image: whiskeySour
   },
   {
     id: 9,
@@ -57,7 +62,7 @@ const cocktails = [
     id: 10,
     name: "Aperol Spritz",
     ingredients: "Aperol, prosecco, soda water, orange slice",
-    image: "https://images.unsplash.com/photo-1595977437232-9d162f54e6a3?auto=format&fit=crop&w=800&q=80"
+    image: aperolSpritz
   }
 ];
 
