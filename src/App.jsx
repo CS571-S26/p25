@@ -5,6 +5,7 @@ import MenuPage from "./assets/pages/MenuPage";
 import CartPage from "./assets/pages/CartPage";
 import NavigationBar from "./assets/components/NavigationBar";
 import cocktails from "./assets/data/cocktails";
+import BuildYourOwnPage from "./assets/pages/BuildYourOwnPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -42,6 +43,7 @@ function App() {
           path="/cart"
           element={<CartPage cart={cart} removeFromCart={removeFromCart} />}
         />
+        <Route path="/build-your-own" element={<BuildYourOwnPage />} />
       </Routes>
     </HashRouter>
   );
