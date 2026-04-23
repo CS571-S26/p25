@@ -15,6 +15,9 @@ function NavigationBar({ cartCount }) {
             <Nav.Link as={Link} to="/menu">
               Menu
             </Nav.Link>
+            <Nav.Link as={Link} to="/build-your-own">
+              Build Your Own!
+            </Nav.Link>
             <Nav.Link as={Link} to="/cart">
               Cart <Badge bg="warning" text="dark">{cartCount}</Badge>
             </Nav.Link>

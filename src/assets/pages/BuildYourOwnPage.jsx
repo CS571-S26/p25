@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Alert, Dropdown, DropdownButton } from "react-bootstrap";
 
 const BASE_OPTIONS = [
   "Vodka",
@@ -45,21 +45,27 @@ const GARNISH_OPTIONS = [
   "Salt Rim"
 ];
 
-function IngredientCard({ name, count, onIncrement, onDecrement }) {
+function SelectedIngredient({ name, quantity, onIncrement, onDecrement, onRemove }) {
   return (
-    <Card className="h-100 shadow-sm">
-      <Card.Body className="d-flex flex-column justify-content-between text-center">
-        <Card.Title>{name}</Card.Title>
-
-        <div className="d-flex align-items-center justify-content-center mt-3">
-          <Button variant="secondary" onClick={onDecrement}>
-            -
-          </Button>
-          <span style={{ margin: "0 15px", fontSize: "18px", minWidth: "20px" }}>
-            {count}
-          </span>
-          <Button variant="secondary" onClick={onIncrement}>
-            +
+    <Card className="mb-3 shadow-sm">
+      <Card.Body className="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="mb-0">{name}</h5>
+        </div>
+        <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center">
+            <Button variant="secondary" size="sm" onClick={onDecrement}>
+              -
+            </Button>
+            <span style={{ margin: "0 10px", fontSize: "16px", minWidth: "25px", textAlign: "center" }}>
+              {quantity}
+            </span>
+            <Button variant="secondary" size="sm" onClick={onIncrement}>
+              +
+            </Button>
+          </div>
+          <Button variant="danger" size="sm" onClick={onRemove}>
+            Remove
           </Button>
         </div>
       </Card.Body>
@@ -68,74 +74,96 @@ function IngredientCard({ name, count, onIncrement, onDecrement }) {
 }
 
 function BuildYourOwnPage({ addCustomCocktailToCart }) {
-  const [baseCounts, setBaseCounts] = useState(
-    Object.fromEntries(BASE_OPTIONS.map((item) => [item, 0]))
-  );
-  const [sweetenerCounts, setSweetenerCounts] = useState(
-    Object.fromEntries(SWEETENER_OPTIONS.map((item) => [item, 0]))
-  );
-  const [sourCounts, setSourCounts] = useState(
-    Object.fromEntries(SOUR_OPTIONS.map((item) => [item, 0]))
-  );
-  const [garnishCounts, setGarnishCounts] = useState(
-    Object.fromEntries(GARNISH_OPTIONS.map((item) => [item, 0]))
-  );
+  // Store selected ingredients with their quantities
+  // Format: { "Base|Vodka": 2, "Sweetener|Simple Syrup": 1, etc. }
+  const [selectedIngredients, setSelectedIngredients] = useState({});
   const [message, setMessage] = useState("");
 
-  const totalNonGarnish =
-    Object.values(baseCounts).reduce((a, b) => a + b, 0) +
-    Object.values(sweetenerCounts).reduce((a, b) => a + b, 0) +
-    Object.values(sourCounts).reduce((a, b) => a + b, 0);
+  // Determine how many non-garnish and garnish items are selected
+  const getNonGarnishCount = () => {
+    return Object.entries(selectedIngredients)
+      .filter(([key]) => !key.startsWith("Garnish|"))
+      .reduce((sum, [, quantity]) => sum + quantity, 0);
+  };
 
-  const totalGarnish = Object.values(garnishCounts).reduce((a, b) => a + b, 0);
+  const getGarnishCount = () => {
+    return Object.entries(selectedIngredients)
+      .filter(([key]) => key.startsWith("Garnish|"))
+      .reduce((sum, [, quantity]) => sum + quantity, 0);
+  };
 
-  const incrementItem = (name, counts, setCounts, isGarnish = false) => {
-    if (isGarnish) {
-      if (totalGarnish >= 1) return;
-      setCounts((prev) => ({ ...prev, [name]: 1 }));
+  const addIngredient = (category, ingredientName) => {
+    const key = `${category}|${ingredientName}`;
+    
+    // Check garnish limit (max 2 total quantity)
+    if (category === "Garnish" && getGarnishCount() >= 2 && !selectedIngredients[key]) {
+      setMessage("Total garnish quantity cannot exceed 2.");
+      setTimeout(() => setMessage(""), 3000);
       return;
     }
 
-    if (totalNonGarnish >= 8) return;
-    if (counts[name] >= 8) return;
+    // Check non-garnish limit (max 8 total quantity)
+    if (category !== "Garnish" && getNonGarnishCount() >= 8 && !selectedIngredients[key]) {
+      setMessage("Total non-garnish quantity cannot exceed 8.");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
 
-    setCounts((prev) => ({ ...prev, [name]: prev[name] + 1 }));
+    // Add the ingredient with quantity 1 if not already selected
+    if (!selectedIngredients[key]) {
+      setSelectedIngredients(prev => ({ ...prev, [key]: 1 }));
+      setMessage("");
+    }
   };
 
-  const decrementItem = (name, setCounts) => {
-    setCounts((prev) => ({
+  const removeIngredient = (key) => {
+    setSelectedIngredients(prev => {
+      const newIngredients = { ...prev };
+      delete newIngredients[key];
+      return newIngredients;
+    });
+  };
+
+  const incrementQuantity = (key) => {
+    const isGarnish = key.startsWith("Garnish|");
+    const currentGarnishTotal = getGarnishCount();
+    const currentNonGarnishTotal = getNonGarnishCount();
+
+    // Check if incrementing would exceed limits
+    if (isGarnish && currentGarnishTotal >= 2) {
+      setMessage("Total garnish quantity cannot exceed 2.");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+
+    if (!isGarnish && currentNonGarnishTotal >= 8) {
+      setMessage("Total non-garnish quantity cannot exceed 8.");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+
+    setSelectedIngredients(prev => ({
       ...prev,
-      [name]: Math.max(prev[name] - 1, 0)
+      [key]: prev[key] + 1
+    }));
+  };
+
+  const decrementQuantity = (key) => {
+    setSelectedIngredients(prev => ({
+      ...prev,
+      [key]: Math.max(prev[key] - 1, 1)
     }));
   };
 
   const buildIngredientList = () => {
-    const ingredients = [];
-
-    Object.entries(baseCounts).forEach(([name, count]) => {
-      if (count > 0) ingredients.push(`${count} ${name}`);
+    return Object.entries(selectedIngredients).map(([key, quantity]) => {
+      const [category, name] = key.split("|");
+      return category === "Garnish" ? name : `${quantity} ${name}`;
     });
-
-    Object.entries(sweetenerCounts).forEach(([name, count]) => {
-      if (count > 0) ingredients.push(`${count} ${name}`);
-    });
-
-    Object.entries(sourCounts).forEach(([name, count]) => {
-      if (count > 0) ingredients.push(`${count} ${name}`);
-    });
-
-    Object.entries(garnishCounts).forEach(([name, count]) => {
-      if (count > 0) ingredients.push(name);
-    });
-
-    return ingredients;
   };
 
   const resetSelections = () => {
-    setBaseCounts(Object.fromEntries(BASE_OPTIONS.map((item) => [item, 0])));
-    setSweetenerCounts(Object.fromEntries(SWEETENER_OPTIONS.map((item) => [item, 0])));
-    setSourCounts(Object.fromEntries(SOUR_OPTIONS.map((item) => [item, 0])));
-    setGarnishCounts(Object.fromEntries(GARNISH_OPTIONS.map((item) => [item, 0])));
+    setSelectedIngredients({});
   };
 
   const handleAddToCart = () => {
@@ -151,49 +179,93 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
     resetSelections();
   };
 
-  const renderColumn = (title, options, counts, setCounts, isGarnish = false) => (
-    <Col xs={12} md={6} lg={3}>
-      <h3 className="text-center mb-3">{title}</h3>
-      <Row>
-        {options.map((item) => (
-          <Col xs={12} className="mb-3" key={item}>
-            <IngredientCard
-              name={item}
-              count={counts[item]}
-              onIncrement={() => incrementItem(item, counts, setCounts, isGarnish)}
-              onDecrement={() => decrementItem(item, setCounts)}
-            />
-          </Col>
+  const renderCategoryDropdown = (categoryTitle, options) => (
+    <Col xs={12} md={6} lg={3} className="mb-4">
+      <DropdownButton
+        id={`dropdown-${categoryTitle}`}
+        title={categoryTitle}
+        className="w-100"
+        variant="outline-dark"
+      >
+        {options.map(option => (
+          <Dropdown.Item
+            key={option}
+            onClick={() => addIngredient(categoryTitle, option)}
+            disabled={selectedIngredients[`${categoryTitle}|${option}`] !== undefined}
+          >
+            {option}
+          </Dropdown.Item>
         ))}
-      </Row>
+      </DropdownButton>
     </Col>
   );
+
+  const getSelectedByCategory = (category) => {
+    return Object.entries(selectedIngredients)
+      .filter(([key]) => key.startsWith(category))
+      .map(([key, quantity]) => ({ key, name: key.split("|")[1], quantity }));
+  };
 
   return (
     <Container className="py-4">
       <h2 className="text-center mb-3">Build Your Own Cocktail</h2>
       <p className="text-center">
-        Choose up to 8 total items across Base, Sweetener, and Sour. Choose up to 1 garnish.
+        Select ingredients from each category below and adjust quantities as needed.
+      </p>
+      <p className="text-center text-muted small">
+        <em>* 1 quantity = 1 fluid ounce of that item</em>
       </p>
 
-      <div className="text-center mb-4">
-        <strong>Selected non-garnish items:</strong> {totalNonGarnish} / 8
-        <br />
-        <strong>Selected garnish:</strong> {totalGarnish} / 1
-      </div>
-
       {message && (
-        <Alert variant="info" className="text-center">
+        <Alert variant={message.includes("Custom") ? "success" : "info"} className="text-center">
           {message}
         </Alert>
       )}
 
-      <Row>
-        {renderColumn("Base", BASE_OPTIONS, baseCounts, setBaseCounts)}
-        {renderColumn("Sweetener", SWEETENER_OPTIONS, sweetenerCounts, setSweetenerCounts)}
-        {renderColumn("Sour", SOUR_OPTIONS, sourCounts, setSourCounts)}
-        {renderColumn("Garnish", GARNISH_OPTIONS, garnishCounts, setGarnishCounts, true)}
+      <Card className="mb-4 p-3 bg-light">
+        <h5 className="mb-0">
+          Selected Ingredients: <strong>{Object.keys(selectedIngredients).length}</strong>
+        </h5>
+        <small className="text-muted">Non-garnish: {getNonGarnishCount()}/8 | Garnish: {getGarnishCount()}/2</small>
+      </Card>
+
+      {/* Dropdowns Section */}
+      <h4 className="mb-3">Select Ingredients</h4>
+      <Row className="mb-4">
+        {renderCategoryDropdown("Base", BASE_OPTIONS)}
+        {renderCategoryDropdown("Sweetener", SWEETENER_OPTIONS)}
+        {renderCategoryDropdown("Sour", SOUR_OPTIONS)}
+        {renderCategoryDropdown("Garnish", GARNISH_OPTIONS)}
       </Row>
+
+      {/* Selected Ingredients Section */}
+      {Object.keys(selectedIngredients).length > 0 && (
+        <>
+          <h4 className="mb-3">Your Selection</h4>
+          <Row className="mb-4">
+            <Col xs={12} md={8} className="mx-auto">
+              {["Base", "Sweetener", "Sour", "Garnish"].map(category => {
+                const items = getSelectedByCategory(category);
+                return items.length > 0 ? (
+                  <div key={category}>
+                    <h6 className="text-muted mt-3 mb-2">{category}</h6>
+                    {items.map(({ key, name, quantity }) => (
+                      <SelectedIngredient
+                        key={key}
+                        name={name}
+                        quantity={quantity}
+                        onIncrement={() => incrementQuantity(key)}
+                        onDecrement={() => decrementQuantity(key)}
+                        onRemove={() => removeIngredient(key)}
+                      />
+                    ))}
+                  </div>
+                ) : null;
+              })}
+            </Col>
+          </Row>
+        </>
+      )}
 
       <div className="text-center mt-4">
         <Button variant="dark" size="lg" onClick={handleAddToCart}>
