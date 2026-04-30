@@ -88,17 +88,18 @@ function SelectedIngredient({ name, quantity, price, onIncrement, onDecrement, o
     <Card className="mb-3 shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
-          <h5 className="mb-1">{name}</h5>
-          <p className="mb-0">
-            <strong>${price.toFixed(2)}</strong> each × <strong>{quantity}</strong> = <strong>${itemTotal.toFixed(2)}</strong>
+          <h5 className="mb-0">{name}</h5>
+          <p className="mb-0 small text-muted">
+            ${price.toFixed(2)} each × {quantity} = ${itemTotal.toFixed(2)}
           </p>
         </div>
+
         <div className="d-flex align-items-center gap-3">
           <div className="d-flex align-items-center">
             <Button variant="secondary" size="sm" onClick={onDecrement}>
               -
             </Button>
-            <span style={{ margin: "0 10px", fontSize: "16px", minWidth: "25px", textAlign: "center" }}>
+            <span style={{ minWidth: "25px", textAlign: "center" }}>
               {quantity}
             </span>
             <Button variant="secondary" size="sm" onClick={onIncrement}>
@@ -242,12 +243,11 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
   };
 
   const renderCategoryDropdown = (categoryTitle, options) => (
-    <Col xs={12} md={6} lg={3} className="mb-4">
+    <div className="mx-3 mb-3">
       <DropdownButton
         id={`dropdown-${categoryTitle}`}
         title={categoryTitle}
-        className="w-100"
-        variant="outline-dark"
+        variant="dark"
       >
         {options.map(option => (
           <Dropdown.Item
@@ -259,7 +259,7 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
           </Dropdown.Item>
         ))}
       </DropdownButton>
-    </Col>
+    </div>
   );
 
   const getSelectedByCategory = (category) => {
@@ -300,26 +300,37 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
         )}
       </Card>
 
-      {/* Dropdowns Section */}
-      <h4 className="mb-3">Select Ingredients</h4>
-      <Row className="mb-4">
-        {renderCategoryDropdown("Base", BASE_OPTIONS)}
-        {renderCategoryDropdown("Sweetener", SWEETENER_OPTIONS)}
-        {renderCategoryDropdown("Sour", SOUR_OPTIONS)}
-        {renderCategoryDropdown("Garnish", GARNISH_OPTIONS)}
+      <h4 className="mb-3 text-center">Select Ingredients</h4>
+
+      <Row className="mb-4 justify-content-center text-center">
+        <Col xs="auto">
+          {renderCategoryDropdown("Base", BASE_OPTIONS)}
+        </Col>
+        <Col xs="auto">
+          {renderCategoryDropdown("Sweetener", SWEETENER_OPTIONS)}
+        </Col>
+        <Col xs="auto">
+          {renderCategoryDropdown("Sour", SOUR_OPTIONS)}
+        </Col>
+        <Col xs="auto">
+          {renderCategoryDropdown("Garnish", GARNISH_OPTIONS)}
+        </Col>
       </Row>
 
-      {/* Selected Ingredients Section */}
       {Object.keys(selectedIngredients).length > 0 && (
         <>
-          <h4 className="mb-3">Your Selection</h4>
+          <h4 className="mb-3 text-center">Your Selection</h4>
+
           <Row className="mb-4">
-            <Col xs={12} md={8} className="mx-auto">
+            <Col xs={12} md={6} lg={5} className="mx-auto text-center">
               {["Base", "Sweetener", "Sour", "Garnish"].map(category => {
                 const items = getSelectedByCategory(category);
                 return items.length > 0 ? (
                   <div key={category}>
-                    <h6 className="text-muted mt-3 mb-2">{category}</h6>
+                    <h6 className="mt-3 mb-2" style={{ color: "#bbbbbb" }}>
+                      {category}
+                    </h6>
+
                     {items.map(({ key, name, quantity, price }) => (
                       <SelectedIngredient
                         key={key}
