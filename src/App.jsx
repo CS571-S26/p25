@@ -26,19 +26,16 @@ function App() {
     });
   };
 
-  const addCustomCocktailToCart = (ingredients) => {
-    const customDrink = {
-      id: `custom-${Date.now()}`,
-      name: "Build Your Own Cocktail",
-      ingredients: ingredients.join(", "),
-      quantity: 1
-    };
-
-    setCart((prev) => [...prev, customDrink]);
+  const addCustomCocktailToCart = (cocktail) => {
+    setCart((prev) => [...prev, cocktail]);
   };
 
   const removeFromCart = (idToRemove) => {
     setCart((prev) => prev.filter((item) => item.id !== idToRemove));
+  };
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   return (
@@ -52,7 +49,7 @@ function App() {
         />
         <Route
           path="/cart"
-          element={<CartPage cart={cart} removeFromCart={removeFromCart} />}
+          element={<CartPage cart={cart} removeFromCart={removeFromCart} clearCart={clearCart} />}
         />
         <Route
           path="/build-your-own"

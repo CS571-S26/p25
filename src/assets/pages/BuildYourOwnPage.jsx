@@ -45,12 +45,53 @@ const GARNISH_OPTIONS = [
   "Salt Rim"
 ];
 
-function SelectedIngredient({ name, quantity, onIncrement, onDecrement, onRemove }) {
+// Ingredient prices (per fluid ounce or unit)
+const INGREDIENT_PRICES = {
+  "Vodka": 2.50,
+  "Gin": 2.75,
+  "Tequila": 2.75,
+  "Rum": 3.25,
+  "Whiskey": 3.50,
+  "Bourbon": 3.50,
+  "Triple Sec": 2.75,
+  "Brandy": 3.25,
+  "Simple Syrup": 1.50,
+  "Agave Syrup": 1.65,
+  "Honey Syrup": 1.75,
+  "Grenadine": 1.85,
+  "Maple Syrup": 1.80,
+  "Orgeat": 1.90,
+  "Coconut Syrup": 1.60,
+  "Brown Sugar Syrup": 1.55,
+  "Lime Juice": 1.50,
+  "Lemon Juice": 1.50,
+  "Grapefruit Juice": 1.75,
+  "Orange Juice": 1.65,
+  "Cranberry Juice": 1.75,
+  "Pineapple Juice": 1.75,
+  "Passionfruit Juice": 1.90,
+  "Sour Mix": 1.55,
+  "Orange Peel": 1.00,
+  "Lemon Peel": 1.00,
+  "Lime Wheel": 1.00,
+  "Cherry": 1.25,
+  "Mint": 1.00,
+  "Rosemary": 1.15,
+  "Orange Slice": 1.10,
+  "Salt Rim": 1.05
+};
+
+function SelectedIngredient({ name, quantity, price, onIncrement, onDecrement, onRemove }) {
+  const itemTotal = price * quantity;
+
   return (
     <Card className="mb-3 shadow-sm">
       <Card.Body className="d-flex justify-content-between align-items-center">
         <div>
-          <h5 className="mb-0">{name}</h5>
+          <h5 className="mb-1">{name}</h5>
+          <p className="mb-0">
+            <strong>${price.toFixed(2)}</strong> each × <strong>{quantity}</strong> = <strong>${itemTotal.toFixed(2)}</strong>
+          </p>
         </div>
         <div className="d-flex align-items-center gap-3">
           <div className="d-flex align-items-center">
@@ -90,6 +131,15 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
     return Object.entries(selectedIngredients)
       .filter(([key]) => key.startsWith("Garnish|"))
       .reduce((sum, [, quantity]) => sum + quantity, 0);
+  };
+
+  // Calculate total price of custom cocktail
+  const calculateTotalPrice = () => {
+    return Object.entries(selectedIngredients).reduce((total, [key, quantity]) => {
+      const ingredientName = key.split("|")[1];
+      const price = INGREDIENT_PRICES[ingredientName] || 0;
+      return total + (price * quantity);
+    }, 0);
   };
 
   const addIngredient = (category, ingredientName) => {
@@ -162,6 +212,18 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
     });
   };
 
+  const buildCustomCocktail = () => {
+    const ingredients = buildIngredientList();
+    const price = calculateTotalPrice();
+    return {
+      id: `custom-${Date.now()}`,
+      name: "Build Your Own Cocktail",
+      ingredients: ingredients.join(", "),
+      price: price,
+      quantity: 1
+    };
+  };
+
   const resetSelections = () => {
     setSelectedIngredients({});
   };
@@ -174,7 +236,7 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
       return;
     }
 
-    addCustomCocktailToCart(ingredients);
+    addCustomCocktailToCart(buildCustomCocktail());
     setMessage("Custom cocktail added to cart!");
     resetSelections();
   };
@@ -203,7 +265,11 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
   const getSelectedByCategory = (category) => {
     return Object.entries(selectedIngredients)
       .filter(([key]) => key.startsWith(category))
-      .map(([key, quantity]) => ({ key, name: key.split("|")[1], quantity }));
+      .map(([key, quantity]) => {
+        const name = key.split("|")[1];
+        const price = INGREDIENT_PRICES[name] || 0;
+        return { key, name, quantity, price };
+      });
   };
 
   return (
@@ -227,6 +293,11 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
           Selected Ingredients: <strong>{Object.keys(selectedIngredients).length}</strong>
         </h5>
         <small className="text-muted">Non-garnish: {getNonGarnishCount()}/8 | Garnish: {getGarnishCount()}/2</small>
+        {Object.keys(selectedIngredients).length > 0 && (
+          <p className="mb-0 mt-2">
+            <strong>Total Price: ${calculateTotalPrice().toFixed(2)}</strong>
+          </p>
+        )}
       </Card>
 
       {/* Dropdowns Section */}
@@ -249,11 +320,12 @@ function BuildYourOwnPage({ addCustomCocktailToCart }) {
                 return items.length > 0 ? (
                   <div key={category}>
                     <h6 className="text-muted mt-3 mb-2">{category}</h6>
-                    {items.map(({ key, name, quantity }) => (
+                    {items.map(({ key, name, quantity, price }) => (
                       <SelectedIngredient
                         key={key}
                         name={name}
                         quantity={quantity}
+                        price={price}
                         onIncrement={() => incrementQuantity(key)}
                         onDecrement={() => decrementQuantity(key)}
                         onRemove={() => removeIngredient(key)}

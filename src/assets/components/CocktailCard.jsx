@@ -30,6 +30,9 @@ function CocktailCard({ cocktail, addToCart }) {
         <Card.Text>
           <strong>Ingredients:</strong> {cocktail.ingredients}
         </Card.Text>
+        <Card.Text>
+          <strong>Price:</strong> ${cocktail.price?.toFixed(2) || "N/A"}
+        </Card.Text>
 
         {/* Quantity selector */}
         <div className="d-flex align-items-center justify-content-center mb-3">
